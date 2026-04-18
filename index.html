@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Trip Mode Predictor</title>
+    <link rel="stylesheet" href="style.css">
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+</head>
+<body>
+    <div class="body">
+        <h1 class="title">Trip Mode Predictor</h1>
+        <div class="left-column">
+        <div class="trip">
+            <h2 class="title2">Trip Simulator Control</h2>
+            <div class="input">
+                
+                    <form id="trip-form">
+                        <label for="Date">Date:</label>
+    <input type="date" id="date" name="date">
+
+    <label for="Time">Time:</label>
+    <input type="time" name="time" id="time">
+
+    <label for="loc" class="location">Current Location:</label>
+    <input type="text" id="location" name="location">
+    <input type="hidden" id="location_lat">
+    <input type="hidden" id="location_lng">
+    <div class="space"></div>
+    <div id="autocomplete-container-location" class="autocomplete-items"></div>
+
+    
+
+    <div class="divider"></div>
+
+   
+    <label for="Purpose">Purpose:</label>
+    <select name="purpose" id="purpose">
+        <option value="Direct Work Commute">Direct Work Commute</option>
+    <option value="Shopping">Shopping</option>
+    <option value="Pickup/Dropoff Someone">Pickup/Dropoff Someone</option>
+    <option value="Education">Education</option>
+    <option value="Recreation">Recreation</option>
+    <option value="Personal Business">Personal Business</option>
+    <option value="Accompany Someone">Accompany Someone</option>
+    <option value="Work Related">Work Related</option>
+    <option value="Social">Social</option>
+    <option value="Pickup/Deliver Something">Pickup/Deliver Something</option>
+    <option value="Childcare or Kindergarten">Childcare or Kindergarten</option>
+    <option value="Other Purpose">Other Purpose</option>
+    </select>
+
+    <label for="dest">Destination:</label>
+    <input type="text" name="destination" id="destination">
+    <input type="hidden" id="destination_lat">
+    <input type="hidden" id="destination_lng">
+    <div id="autocomplete-container-destination" class="autocomplete-items"></div>
+
+    <div class="divider"></div>
+
+    <label for="Car">Car:</label>
+    <select name="car" id="car">
+        <option value="yes">Yes</option>
+        <option value="no">No</option>
+    </select>
+
+    <label for="Bike">Bike:</label>
+    <select name="bike" id="bike">
+        <option value="yes">Yes</option>
+        <option value="no">No</option>
+    </select>
+
+    <label for="ecofriendly">Eco-freindly:</label>
+    <select name="eco-friendly" id="eco-friendly">
+        <option value="yes">Yes</option>
+        <option value="no">No</option>
+    </select>
+
+    <label for="Timesensitive">Time Sensitive:</label>
+    <select name="timesens" id="timesens">
+        <option value="yes">Yes</option>
+        <option value="no">No</option>
+    </select>
+
+    <label for="Comfort">Comfort:</label>
+    <select name="comfort" id="comfort">
+        <option value="yes">Yes</option>
+        <option value="no">No</option>
+    </select>
+
+    
+    <div class="divider"></div>
+
+    <div class="predictbutton">
+        <button type="submit">Predict</button>
+    </div>
+</form>
+               
+
+            </div>
+        
+        
+        
+        </div>
+        <div class="predict">
+            <h2 class="title2">Prediction</h2>
+            <div class="result">
+                <i class="fa-solid fa-question-circle"></i> 
+    <p class="prediction-text">Waiting...</p>
+            </div>
+
+        </div>
+        </div>
+        <div class="right-column">
+        <div class="vis">
+            
+            <div class="pie">
+                <div class="card-content">
+                    <h2 class="title3">Prediction Confidence</h2>
+                    <p class="par1">The model's assigned probability for each possible travel mode.</p>
+                    <div class="space"></div>
+                    <div class="pie-chart"><canvas id="confidenceChart"></canvas></div>
+                    <div class="space"></div>
+                    <div id="custom-legend" class="custom-legend"></div>                    
+                </div>
+            </div>
+            
+            <div class="factors">
+                <div class="card-content">
+                    <h2 class="title3">Key Factors in this Decision</h2>
+                    <p class="par1">The factors that were most influential for this specific predection.</p>
+                    <div class="space"></div>
+                    <div class="bar-chart">
+                        <canvas id="factorsChart"></canvas>
+                    </div>
+                </div>
+                
+            </div>
+            <div class="co2">
+                 <div class="card-content">
+                    <h2 class="title3">CO₂ Emissions Comparison</h2>
+                    <p class="par1">Estimated CO₂ emissions produced by each travel mode</p>
+                    <div class="space"></div>
+                    <div class="bar-chart">
+                        <canvas id="co2Chart"></canvas>
+                    </div>
+                </div>
+
+            </div>
+            
+            <div class="disability">
+                <div class="card-content1">
+                    <i class="fas fa-info-circle info-icon"></i>
+                </div>
+                <div class="text">
+                    <h2 class="title4">Accessibility Considerations</h2>
+                    <p class="par2">This model’s predictions are based on general travel patterns. If you have a disability or specific mobility needs, your ideal mode of transport may differ. Please consider factors such as public transport accessibility, pavement and pathway conditions for walking or wheeling, and the availability of private vehicles or specialised services when deciding the most suitable travel option.</p>
+                </div>
+            </div>
+            <div class="health">
+                <div class="card-content1">
+                    <i class="fas fa-heartbeat health-icon"></i>
+                </div>
+                <div class="text">
+                    <h2 class="title5">A Healthy Choice!</h2>
+                    <p class="par3">Great news! The model prdicts that Walking is a great option for this trip. Choosing an active travel mode like this is an excellent way to boost your physical and mental health.</p>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+    </div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+
+
+    <script>
+
+      
+
+       
+const GEOAPIFY_API_KEY = "c37ab9157a0a403282a75357deaa0df2";
+
+
+
+function addressAutocomplete(inputId, containerId, latInputId, lngInputId) {
+    const input = document.getElementById(inputId);
+    input.addEventListener("input", async function (e) {
+        const text = e.target.value;
+        const container = document.getElementById(containerId);
+        if (!text || text.length < 3) {
+            container.innerHTML = "";
+            return;
+        }
+
+        const response = await fetch(
+            `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(text)}&filter=countrycode:gb&apiKey=${GEOAPIFY_API_KEY}`
+        );
+        const data = await response.json();
+        container.innerHTML = "";
+
+        data.features.forEach(feature => {
+            const div = document.createElement("div");
+            div.innerHTML = feature.properties.formatted;
+            div.addEventListener("click", function () {
+                input.value = feature.properties.formatted;
+                document.getElementById(latInputId).value = feature.properties.lat;
+                document.getElementById(lngInputId).value = feature.properties.lon;
+                container.innerHTML = "";
+            });
+            container.appendChild(div);
+        });
+    });
+}
+
+
+addressAutocomplete("location", "autocomplete-container-location", "location_lat", "location_lng");
+addressAutocomplete("destination", "autocomplete-container-destination", "destination_lat", "destination_lng");
+
+
+// Confidence Chart
+
+const centerTextPlugin = {
+    id: 'centerText',
+    beforeDraw: (chart) => {
+        if (chart.config.type !== 'doughnut') return;
+        const { ctx, data } = chart;
+        const { width, height } = chart.chartArea;
+
+        ctx.restore();
+        const fontSize = (height / 100).toFixed(2);
+        ctx.font = `bold ${fontSize}em Inter, sans-serif`;
+        ctx.textBaseline = 'middle';
+
+        const topPrediction = data.datasets[0].data[0] || 0;
+        const text = `${topPrediction}%`;
+        const textX = Math.round((width - ctx.measureText(text).width) / 2);
+        const textY = height / 2;
+
+        ctx.fillStyle = '#11182B';
+        ctx.fillText(text, textX, textY - 20);
+
+        const subFontSize = (height / 160).toFixed(2);
+        ctx.font = `${subFontSize}em Inter, sans-serif`;
+        const subText = 'Confidence';
+        const subTextX = Math.round((width - ctx.measureText(subText).width) / 2);
+        ctx.fillText(subText, subTextX, textY + 20);
+        ctx.save();
+    }
+};
+
+const ctxConfidence = document.getElementById('confidenceChart').getContext('2d');
+const confidenceChart = new Chart(ctxConfidence, {
+    type: 'doughnut',
+    data: {
+        labels: ['Waiting for', 'Prediction', '...'],
+        datasets: [{
+            data: [50, 30, 20],
+            backgroundColor: ['#3B82F6', '#10B981', '#9CA3AF'],
+            borderColor: '#ffffff',
+            borderWidth: 4,
+            hoverOffset: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '70%',
+        plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: (c) => ` ${c.label}: ${c.raw}%` } }
+        }
+    },
+    plugins: [centerTextPlugin]
+});
+
+
+// Factors Chart
+
+const ctxFactors = document.getElementById('factorsChart').getContext('2d');
+const factorsChart = new Chart(ctxFactors, {
+    type: 'bar',
+    data: {
+        labels: [],     
+        datasets: [{
+            label: 'Feature Importance',
+            data: [],
+            backgroundColor: '#3B82F6',
+            borderRadius: 25,
+            barThickness: 30
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+        enabled: true,
+        callbacks: {
+            title: (tooltipItems) => {
+                return tooltipItems[0].label;
+            },
+            label: (tooltipItem) => {
+                return `Importance: ${tooltipItem.raw}`;
+            }
+        }
+    },
+            datalabels: {
+                color: '#ffffff',
+                anchor: 'center',
+                align: 'center',
+                font: { weight: '600', size: 18, family: 'Poppins, sans-serif' },
+                formatter: (value, ctx) => ctx.chart.data.labels[ctx.dataIndex]
+            }
+        },
+        scales: {
+            x: { beginAtZero: true, grid: { display: false }, ticks: { display: false } },
+            y: { grid: { display: false }, ticks: { display: false } }
+        }
+    },
+    plugins: [ChartDataLabels]
+});
+
+
+// CO₂ Emission Chart
+
+const ctxCO2 = document.getElementById('co2Chart').getContext('2d');
+
+const co2Modes = ['Walking', 'Cycling', 'Public Bus', 'Car Passenger', 'Car Driver'];
+const co2Values = [0, 0, 0, 0, 0];
+
+const co2Chart = new Chart(ctxCO2, {
+    type: 'bar',
+    data: {
+        labels: co2Modes,
+        datasets: [{
+            label: 'CO₂ Emissions (grams per trip)',
+            data: co2Values, 
+            backgroundColor: co2Modes.map(() => '#E69F00'),
+            borderRadius: 10
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                callbacks: { label: (c) => `${c.raw} g CO₂` }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: { display: true, text: 'CO₂ Emissions (grams)' }
+            },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+const co2Container = document.querySelector('.co2');
+
+const observer = new ResizeObserver(() => {
+    co2Chart.resize();
+});
+
+observer.observe(co2Container);
+
+
+
+// Form Submit & Prediction
+
+const tripForm = document.getElementById('trip-form');
+tripForm.addEventListener('submit', async function(event) {
+    event.preventDefault();
+
+    const formData = {
+        origin_lat: parseFloat(document.getElementById('location_lat').value),
+        origin_lng: parseFloat(document.getElementById('location_lng').value),
+        dest_lat: parseFloat(document.getElementById('destination_lat').value),
+        dest_lng: parseFloat(document.getElementById('destination_lng').value),
+        purpose: document.getElementById('purpose').value,
+        date: document.getElementById('date').value,
+        time: document.getElementById('time').value,
+        car: document.getElementById('car').value,
+        bike: document.getElementById('bike').value,
+        eco_friendly: document.getElementById('eco-friendly').value,
+        timesensitive: document.getElementById('timesens').value,
+        comfort: document.getElementById('comfort').value
+    };
+
+    if (!formData.origin_lat || !formData.dest_lat) {
+        alert("Please select a valid origin and destination from the suggestions.");
+        return;
+    }
+
+    try {
+        const response = await fetch('http://127.0.0.1:5000/predict', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `Server error: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+
+        
+       const predictionText = document.querySelector('.prediction-text');
+const predictionIcon = document.querySelector('.result i');
+
+
+predictionText.textContent = result.prediction;
+
+
+const iconMap = [
+    { keywords: ['walk', 'pedestrian'], icon: 'fa-person-walking' },
+    { keywords: ['bicycle', 'bike'], icon: 'fa-bicycle' },
+    { keywords: ['car passenger', 'car', 'uber', 'ride share'], icon: 'fa-car' },
+    { keywords: ['bus'], icon: 'fa-bus' },
+    
+];
+
+
+const pred = result.prediction.toLowerCase();
+let faClass = 'fa-question-circle'; 
+
+for (const entry of iconMap) {
+    if (entry.keywords.some(k => pred.includes(k))) {
+        faClass = entry.icon;
+        break;
+    }
+}
+
+
+predictionIcon.className = `fa-solid ${faClass}`;
+
+const healthyBox = document.querySelector('.health');
+const predMode = result.prediction.toLowerCase();
+
+if (predMode.includes('walk') || predMode.includes('bicycle') || predMode.includes('cycle')) {
+    healthyBox.style.display = 'flex';
+} else {
+    healthyBox.style.display = 'none';
+}
+
+        
+        confidenceChart.data.labels = result.confidence.labels;
+        confidenceChart.data.datasets[0].data = result.confidence.probabilities;
+        confidenceChart.update();
+
+      
+co2Chart.data.datasets[0].backgroundColor = co2Modes.map(mode =>
+    result.prediction.toLowerCase().includes(mode.toLowerCase()) ? '#D55E00' : '#E69F00'
+);
+co2Chart.update();
+
+    
+        const legendContainer = document.getElementById('custom-legend');
+        legendContainer.innerHTML = result.confidence.labels.map((label, i) => {
+            const value = result.confidence.probabilities[i];
+            const color = confidenceChart.data.datasets[0].backgroundColor[i] || '#3B82F6';
+            return `
+                <div style="display: flex; align-items: center; margin-bottom: 6px; font-family: Inter, sans-serif; font-size: 14px;">
+                    <span style="display:inline-block; width:14px; height:14px; border-radius:50%; background:${color}; margin-right:8px;"></span>
+                    <span><b>${value}%</b> ${label}</span>
+                </div>
+            `;
+        }).join('');
+
+        
+        const factorLabels = ['Distance', 'Duration', 'Wind', 'Rain', 'Temperature', 'Purpose'];
+
+const importanceMap = {};
+result.factors.forEach(f => {
+    const key = f.feature.toLowerCase();
+    if (key.includes('dist')) importanceMap['Distance'] = f.importance;
+    else if (key.includes('duration')) importanceMap['Duration'] = f.importance;
+    else if (key.includes('wind')) importanceMap['Wind'] = f.importance;
+    else if (key.includes('rain')) importanceMap['Rain'] = f.importance;
+    else if (key.includes('temp')) importanceMap['Temperature'] = f.importance;
+    else if (key.includes('purpose')) importanceMap['Purpose'] = f.importance;
+});
+
+
+const factorValues = factorLabels.map(label => importanceMap[label] || 0);
+
+factorsChart.data.labels = factorLabels;
+factorsChart.data.datasets[0].data = factorValues;
+factorsChart.update();
+
+const co2Data = result.co2;
+
+co2Chart.data.datasets[0].data = [
+    co2Data["Walking"] || 0,
+    co2Data["Cycling"] || 0,
+    co2Data["Public Bus"] || 0,
+    co2Data["Car Passenger"] || 0,
+    co2Data["Car Driver"] || 0
+];
+
+co2Chart.update();
+
+    } catch (error) {
+        console.error('Error during prediction:', error);
+        alert(`Error: ${error.message}`);
+    }
+});
+        
+    </script>
+</body>
+</html>
